@@ -96,18 +96,26 @@ let app = new Vue({
     },
 
     methods: {
-        addNote() {
-            const newNote = {
-                title: this.titleNote,
-                items: [
-                    { id: 1, text: 'Item 1', completed: false },
-                    
-                    { id: 1, text: 'Item 1', completed: false },
-                    
-                    { id: 1, text: 'Item 1', completed: false },
-                ]
-            };
-        }
-    }
+        addCardToColumn() {
+            if((columnIndex === 0 && this.columns[0].cards.length >= 3)||
+                (columnIndex === 1 && this.columns[1].cards.length >= 5)){
+                    alert('Столбец переполнен! Завершите задачи');
+                    return
+                }
+                eventBus.$on('add-card', (card) => {
+                    this.columns[columnIndex].cards.push(card);
+                    this.saveData();
+                });
+            }
+        },
+        saveData(){
+            localStorage.setItem('notesApp', JSON.stringify(this.columns));
+        },
 
+        loadData(){
+            const savedData = localStorage.getItem('notesApp');
+            if(saveData){
+                this.columns = JSON.parse(savedData);
+            }
+        },   
 })
