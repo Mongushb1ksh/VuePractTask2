@@ -1,11 +1,16 @@
 let eventBus = new Vue()
 
-Vue.component('card', {
-
+Vue.component('card-form', {
+    props:{
+        disabled:{
+            type: Array,
+            required: false,
+        }
+    },
     template: `
         <form class="card-form" @submit.prevent="onSubmit">
             <p v-if="errors.length">
-                <b>Please correct the following error(s):</b>
+                <b>Испавьте ошибки:</b>
                 <ul>
                     <li v-for="error in errors">{{ error }}</li>
                 </ul>
@@ -15,7 +20,7 @@ Vue.component('card', {
                 <input id="name" v-model="name" type="text>
             </p>
             <p>
-                <label for="description">Пункт</label>
+                <label for="description">Пункты </label>
                 <input id="description" v-model="description" type="text>
             </p>
             <p>
@@ -25,24 +30,21 @@ Vue.component('card', {
     `,
     data() {
         return {
-            name: null,
-            description: null,
+            name: '',
+            description: '',
             errors: [],
         };
     },
     method: {
         onSubmit(){
-            if(this.name && this.description){
-                let cardForm = {
-                    name: this.name,
-                    review: this.description,
-                }
-                eventBus.$emit('card-submitted', cardForm)
-                this.name=null
-                this.description=null
-            }else{
-                if(!this.name) this.error.push("Заполните заголовок!")
-                if(!this.description) this.error.push("Пункт не может быть пустым!")
+            this.errors = [];
+            if(!this.name) this.error.push("Заполните заголовок!");
+            if(!this.description) this.error.push("Добавьте пункты!");
+            if(this.errors.length === 0){
+                const items =this.description.split(',').map(item => ({text: item.trim(), completed: false}));
+                eventBus.$emit('add-card', {name: this.name, items});
+                this.name='';
+                this.description='';
             }
         },
         clearErrors(){
@@ -52,82 +54,59 @@ Vue.component('card', {
 })
 
 
-Vue.component('column', {
-    props: {
-        message: {
+Vue.component('card', {
+    props:{
+        card:{
             type: Array,
             required: false,
         }
     },
     template:`
-
-
-        <h1>{{ message }}</h1>
-        <div class="column">
-            <div>
-                <p v-if="!cards.length">There are no cards yet.</p>
-                <h2>{{ card.name }}</h2>                
-                <ul>
-                    <li v-for="card in cards">
-                        <p>{{ card.description }}</p>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="column">
-            <div>
-                <p v-if="!cards.length">There are no cards yet.</p>
-                <h2>{{ card.name }}</h2>                
-                <ul>
-                    <li v-for="card in cards">
-                        <p>{{ card.description }}</p>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="column">
-            <div>
-                <p v-if="!cards.length">There are no cards yet.</p>
-                <h2>{{ card.name }}</h2>                
-                <ul>
-                    <li v-for="card in cards">
-                        <p>{{ card.description }}</p>
-                    </li>
-                </ul>
-            </div>
+        <div class="card">
+            <h3>{{ card.name }}</h3>
+            <ul>
+                <li>
+                    <span :class="{ completed: item.completed }">{{ item.text }}</span>
+                    <input type="checkbox" v-model="item.completed" @change="updateCompletion">   
+                </li>
+            </ul>    
+            <p v-if="card.completedAt">Завершено: {{ card.completedAt }}</p>
         </div>
     `,
-    data () {
-        return{
-            card: [],
-        }
+    methods: {
+        updateCompletion() {
+            this.$emit('update');
+        },
     },
-    
-    mouted() {
-        eventBus.$on('card-submitted', cardForm => {
-            this.card.push(cardForm)
-        })
-    }
-
 })
-
 
 
 let app = new Vue({
     el: '#app',
     data: {
             columns: [
-                {id: 1, notes: []},
-                {id: 2, notes: []},
-                {id: 3, notes: []},
+                { cards: [] },
+                { cards: [] },
+                { cards: [] },
             ],
-            titleNote: '',
     },
+
+    computed: {
+
+    },
+
     methods: {
-        addNote: {
-            let newNote = {
-                
-            }
+        addNote() {
+            const newNote = {
+                title: this.titleNote,
+                items: [
+                    { id: 1, text: 'Item 1', completed: false },
+                    
+                    { id: 1, text: 'Item 1', completed: false },
+                    
+                    { id: 1, text: 'Item 1', completed: false },
+                ]
+            };
         }
     }
 
