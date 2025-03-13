@@ -1,6 +1,6 @@
 let eventBus = new Vue()
 
-Vue.component('card',{
+Vue.component('card', {
 
     template: `
         <form class="card-form" @submit.prevent="onSubmit">
@@ -37,6 +37,7 @@ Vue.component('card',{
                     name: this.name,
                     review: this.description,
                 }
+                eventBus.$emit('card-submitted', cardForm)
                 this.name=null
                 this.description=null
             }else{
@@ -53,31 +54,59 @@ Vue.component('card',{
 
 Vue.component('column', {
     props: {
-
+        message: {
+            type: Array,
+            required: false,
+        }
     },
     template:`
+
+
+        <h1>{{ message }}</h1>
         <div class="column">
-            <div v-show="selectedTab === 'Reviews'">
+            <div>
                 <p v-if="!cards.length">There are no cards yet.</p>
+                <h2>{{ card.name }}</h2>                
                 <ul>
                     <li v-for="card in cards">
-                    <p>{{ review.name }}</p>
-                    <p>Rating: {{ review.rating }}</p>
-                    <p>{{ review.review }}</p>
+                        <p>{{ card.description }}</p>
                     </li>
                 </ul>
-
+            </div>
+        </div>
+        <div class="column">
+            <div>
+                <p v-if="!cards.length">There are no cards yet.</p>
+                <h2>{{ card.name }}</h2>                
+                <ul>
+                    <li v-for="card in cards">
+                        <p>{{ card.description }}</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="column">
+            <div>
+                <p v-if="!cards.length">There are no cards yet.</p>
+                <h2>{{ card.name }}</h2>                
+                <ul>
+                    <li v-for="card in cards">
+                        <p>{{ card.description }}</p>
+                    </li>
+                </ul>
             </div>
         </div>
     `,
     data () {
         return{
-            review: [],
-
+            card: [],
         }
     },
+    
     mouted() {
-
+        eventBus.$on('card-submitted', cardForm => {
+            this.card.push(cardForm)
+        })
     }
 
 })
@@ -87,7 +116,19 @@ Vue.component('column', {
 let app = new Vue({
     el: '#app',
     data: {
-
+            columns: [
+                {id: 1, notes: []},
+                {id: 2, notes: []},
+                {id: 3, notes: []},
+            ],
+            titleNote: '',
     },
+    methods: {
+        addNote: {
+            let newNote = {
+                
+            }
+        }
+    }
 
 })
