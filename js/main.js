@@ -69,7 +69,11 @@ Vue.component('card', {
             <ul>
                 <li v-for="(item, index) in card.items" :key="index">
                     <span :class="{ completed: item.completed }">{{ item.text }}</span>
-                    <input type="checkbox" v-model="item.completed" @change="updateCompletion">   
+                    <input 
+                          type="checkbox" 
+                          v-model="item.completed" 
+                          @change="updateCompletion" 
+                          :disabled=" item.completed || (isFirstColumn && isSecondColumnFull)">   
                 </li>
             </ul>    
             <p v-if="card.completedAt">Завершено: {{ card.completedAt }}</p>
@@ -79,6 +83,17 @@ Vue.component('card', {
         updateCompletion() {
             this.$emit('update');
         },
+    },
+    computed:{
+        isInThirdColumn(){
+            return this.$parent.columns[2].cards.includes(this.card);
+        },
+        isSecondColumnFull(){
+            return this.$parent.isSecondColumnFull;
+        },
+        isFirstColumn(){
+            return this.$parent.columns[0].cards.includes(this.card);
+        }
     },
 })
 
@@ -97,12 +112,16 @@ let app = new Vue({
         isFirstColumnLocked(){
             return this.columns[1].cards.length >= 5 && this.columns[0].cards.some(card => this.getCompletionPercentage(card) > 50);
         },
+        isSecondColumnFull(){
+            return this.columns[1].cards.length >= 5;
+        },
+
+        
     },
 
     methods: {
         addCardToColumn(columnIndex) {
-            if((columnIndex === 0 && this.columns[0].cards.length >= 3)||
-                (columnIndex === 1 && this.columns[1].cards.length >= 5)){
+            if((columnIndex === 0 && this.columns[0].cards.length >= 3) || (columnIndex === 0 && this.columns[0].cards.length >= 5)){
                     alert('Столбец переполнен! Завершите задачи');
                     return;
             }
@@ -114,21 +133,34 @@ let app = new Vue({
             const card = this.columns[columnIndex].cards[cardIndex];
             const completionPercentage = this.getCompletionPercentage(card);
 
-            if(completionPercentage > 50 && columnIndex === 0){
-                this.moveCard(columnIndex, cardIndex, 1);
-            }else if(completionPercentage === 100 && columnIndex === 1) {
-                this.moveCard(columnIndex, cardIndex, 2);
-                card.completedAt = new Date().toLocaleString();
+            if (columnIndex === 0){
+                if(completionPercentage >= 50 && completionPercentage < 100 && !this.isSecondColumnFull){
+                    this.moveCard(columnIndex, cardIndex, 1);
+                }else if(completionPercentage === 100 && !this.isSecondColumnFull){
+                    this.moveCard(columnIndex, cardIndex, 2);
+                    card.completedAt = new Date().toLocaleDateString()
+                }
             }
 
+            if (columnIndex === 1){
+                if(completionPercentage === 100){
+                    this.moveCard(columnIndex, cardIndex, 2);
+                    card.completedAt = new Date().toLocaleDateString()
+                }
+            }
 
             this.saveData();
 
         },
 
         moveCard(fromColumn, cardIndex, toColumn) {
-            const card = this.columns[fromColumn].cards.splice(cardIndex, 1)[0];
-            this.columns[toColumn].cards.push(card);
+            if(toColumn === 1 && this.columns[toColumn].cards.length >= 5){
+                alert('Второй столбец переполнен! Выполните пункты во втором столбце');
+                return;
+            }else{
+                const card = this.columns[fromColumn].cards.splice(cardIndex, 1)[0];
+                this.columns[toColumn].cards.push(card);
+            }
         },
 
         getCompletionPercentage(card){
@@ -154,12 +186,13 @@ let app = new Vue({
     },
     mounted(){
         eventBus.$on('add-card', (card) => {
-            const columnIndex = 0; 
+            const columnIndex = 0;
             if(this.columns[columnIndex].cards.length < 3){
                 this.columns[columnIndex].cards.push(card);
                 this.saveData();
             }else{
                 alert('Первый столбец переполнен!');
+
             }
         });
     },

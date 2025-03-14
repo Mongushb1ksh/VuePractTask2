@@ -12,7 +12,8 @@
     <div id="app" class="app">
         <div class="column">
             <h2>Первый столбец</h2>
-            <card-form @add-card="addCardToColumn(0)" :disabled="isFirstColumnLocked"></card-form>            <card v-for="(card, index) in columns[0].cards"
+            <card-form @add-card="addCardToColumn(0)" :disabled="isFirstColumnLocked"></card-form>            
+            <card v-for="(card, index) in columns[0].cards"
                   :key="index"
                   :card="card"
                   @update="updateCard(0, index, $event)">
