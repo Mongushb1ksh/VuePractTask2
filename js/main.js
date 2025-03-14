@@ -108,6 +108,10 @@ let app = new Vue({
                 });
             }
         },
+
+        moveCard(){
+            const card = this.columns[fromColumn].cards.splice(cardIndex, 1)[0];
+        },
         saveData(){
             localStorage.setItem('notesApp', JSON.stringify(this.columns));
         },
