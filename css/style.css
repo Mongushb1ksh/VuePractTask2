@@ -16,4 +16,8 @@
     min-height: 200px;
 }
 
+.completed{
+    text-decoration: line-through;
+    color: gray;
+}
 
