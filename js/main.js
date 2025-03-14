@@ -138,14 +138,14 @@ let app = new Vue({
                     this.moveCard(columnIndex, cardIndex, 1);
                 }else if(completionPercentage === 100 && !this.isSecondColumnFull){
                     this.moveCard(columnIndex, cardIndex, 2);
-                    card.completedAt = new Date().toLocaleDateString()
+                    card.completedAt = new Date().toLocaleString()
                 }
             }
 
             if (columnIndex === 1){
                 if(completionPercentage === 100){
                     this.moveCard(columnIndex, cardIndex, 2);
-                    card.completedAt = new Date().toLocaleDateString()
+                    card.completedAt = new Date().toLocaleString()
                 }
             }
 
