@@ -129,7 +129,7 @@ let app = new Vue({
             this.saveData();
             
         },
-        updateCard(columnIndex, cardIndex, updateCard){
+        updateCard(columnIndex, cardIndex){
             const card = this.columns[columnIndex].cards[cardIndex];
             const completionPercentage = this.getCompletionPercentage(card);
 

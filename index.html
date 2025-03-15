@@ -16,7 +16,7 @@
             <card v-for="(card, index) in columns[0].cards"
                   :key="index"
                   :card="card"
-                  @update="updateCard(0, index, $event)">
+                  @update="updateCard(0, index)">
             </card>
         </div>
         <div class="column">
@@ -24,7 +24,7 @@
             <card v-for="(card, index) in columns[1].cards"
                   :key="index"
                   :card="card"
-                  @update="updateCard(1, index, $event)">
+                  @update="updateCard(1, index)">
             </card>
         </div>
         <div class="column">
