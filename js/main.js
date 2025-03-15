@@ -1,15 +1,9 @@
 let eventBus = new Vue()
 
 Vue.component('card-form', {
-    props:{
-        disabled:{
-            type: Boolean,
-            required: false,
-            default: false,
-        }
-    },
+   
     template: `
-        <form class="card-form" @submit.prevent="onSubmit" :disabled="disabled">
+        <form class="card-form" @submit.prevent="onSubmit">
             <p v-if="errors.length">
                 <b>Испавьте ошибки:</b>
                 <ul>
@@ -44,7 +38,12 @@ Vue.component('card-form', {
             if(!this.description) this.errors.push("Добавьте пункты!");
             if(this.errors.length === 0){
                 const items =this.description.split(',').map(item => ({text: item.trim(), completed: false}));
-                eventBus.$emit('add-card', {name: this.name, items});
+                if(items.length <= 5 && items.length >= 3){   
+                    eventBus.$emit('add-card', {name: this.name, items});
+                } else{ 
+                    alert('Не менее 3 пунктов и не более 5');
+                    return;
+                }
                 this.name='';
                 this.description='';
             }
