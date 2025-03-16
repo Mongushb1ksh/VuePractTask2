@@ -15,29 +15,53 @@ Vue.component('card-form', {
                 <input id="name" v-model="name" type="text">
             </p>
             <p>
-                <label for="description">Пункты </label>
-                <input id="description" v-model="description" type="text">
+                <label for="new-item">Новый пункт</label>
+                <input id="new-item" v-model="newItem" type="text">
+                <button type="button" @click="addItem">Добавить пункт</button>
             </p>
+
+            <ul>
+                <li v-for="(item, index) in items" :key="index">
+                    {{ item.text }}
+                     <button type="button" @click="removeItem(index)">Удалить</button>
+                </li>
+            </ul>
             <p>
-                <input type="submit" value="Добавить">
+                <input type="submit" value="Добавить карточку">
             </p>
         </form>
     `,
     data() {
         return {
             name: '',
-            description: '',
+            newItem: '',
+            items: [],
             errors: [],
         };
     },
 
     methods: {
+
+        addItem(){
+            if(!this.newItem.trim()){
+                this.errors.push("Сначала заполните пустой пункт!");
+                return;
+            }
+            this.items.push({ text: this.newItem.trim(), completed: false });
+            this.newItem=''
+        },
+
+
         onSubmit(){
             this.errors = [];
-            if(!this.name) this.errors.push("Заполните заголовок!");
-            if(!this.description) this.errors.push("Добавьте пункты!");
+            if(!this.name) {
+                this.errors.push("Заполните заголовок!");
+            };
+            if(!this.items.length) {
+                this.errors.push("Добавьте пункты!");
+            };
             if(this.errors.length === 0){
-                const items =this.description.split(',').map(item => ({text: item.trim(), completed: false}));
+                this.items.push({ text: this.newItem.trim(), completed: false });
                 if(items.length <= 5 && items.length >= 3){   
                     eventBus.$emit('add-card', {name: this.name, items});
                 } else{ 
@@ -45,9 +69,15 @@ Vue.component('card-form', {
                     return;
                 }
                 this.name='';
-                this.description='';
+                this.items=[];
             }
         },
+
+        removeItem(index){
+            this.items.splice(index, 1);
+        },
+
+
         clearErrors(){
             this.errors = [];
         },
