@@ -17,7 +17,7 @@ Vue.component('card-form', {
             <p>
                 <label for="new-item">Новый пункт</label>
                 <input id="new-item" v-model="newItem" type="text">
-                <button type="button" @click="addItem">Добавить пункт</button>
+                <button class="buttonItem" type="button" @click="addItem">Добавить пункт</button>
             </p>
 
             <ul>
@@ -48,7 +48,8 @@ Vue.component('card-form', {
                 return;
             }
             this.items.push({ text: this.newItem.trim(), completed: false });
-            this.newItem=''
+            this.newItem='';
+            this.errors=[];
         },
 
 
@@ -61,16 +62,17 @@ Vue.component('card-form', {
                 this.errors.push("Добавьте пункты!");
             };
             if(this.errors.length === 0){
-                this.items.push({ text: this.newItem.trim(), completed: false });
-                if(items.length <= 5 && items.length >= 3){   
-                    eventBus.$emit('add-card', {name: this.name, items});
-                } else{ 
-                    alert('Не менее 3 пунктов и не более 5');
+                if(this.items.length >= 3 && this.items.length <= 5){
+                    eventBus.$emit('add-card', { name: this.name, items: this.items });
+                }else{
+                    console.log('епта')
+                    alert('Добавьте от 3 до 5 пунктов!');
                     return;
                 }
                 this.name='';
                 this.items=[];
-            }
+                this.errors = [];
+            };
         },
 
         removeItem(index){
@@ -94,7 +96,7 @@ Vue.component('card', {
     },
     template:`
         <div class="card">
-            <h3>{{ card.name }}</h3>
+            <h3 class="head">{{ card.name }}</h3>
             <ul>
                 <li v-for="(item, index) in card.items" :key="index">
                     <span :class="{ completed: item.completed }">{{ item.text }}</span>
@@ -149,7 +151,7 @@ let app = new Vue({
     },
 
     methods: {
-        addCardToColumn(columnIndex) {
+        addCardToColumn(columnIndex, card) {
             if((columnIndex === 0 && this.columns[0].cards.length >= 3) || (columnIndex === 0 && this.columns[0].cards.length >= 5)){
                     alert('Столбец переполнен! Завершите задачи');
                     return;
