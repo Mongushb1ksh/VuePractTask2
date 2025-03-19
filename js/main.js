@@ -3,7 +3,7 @@ let eventBus = new Vue()
 Vue.component('card-form', {
    
     template: `
-        <form class="card-form" @submit.prevent="onSubmit">
+        <form v-if="!isSecondColumnFull" class="card-form" @submit.prevent="onSubmit">
             <p v-if="errors.length">
                 <b>Испавьте ошибки:</b>
                 <ul>
@@ -38,6 +38,11 @@ Vue.component('card-form', {
             items: [],
             errors: [],
         };
+    },
+    computed: {
+        isSecondColumnFull(){
+            return this.$parent.isSecondColumnFull;
+        },     
     },
 
     methods: {
@@ -140,11 +145,12 @@ let app = new Vue({
     },
 
     computed:{
-        isFirstColumnLocked(){
-            return this.columns[1].cards.length >= 5 && this.columns[0].cards.some(card => this.getCompletionPercentage(card) > 50);
-        },
         isSecondColumnFull(){
-            return this.columns[1].cards.length >= 5;
+            const isSecondColumnFull = this.columns[1].cards.length >= 5;
+            const cardCompleted = this.columns[0].cards.some(card => {
+                return this.getCompletionPercentage(card) > 20;
+            })
+            return isSecondColumnFull && cardCompleted
         },
 
         

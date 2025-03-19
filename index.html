@@ -11,7 +11,7 @@
 <body>
     <div id="app" class="app">
         <div class="column">
-            <card-form @add-card="addCardToColumn(0)" :disabled="isFirstColumnLocked"></card-form>  
+            <card-form @add-card="addCardToColumn(0)"></card-form>  
             
             <h2>Первый столбец</h2>
             <card v-for="(card, index) in columns[0].cards"
