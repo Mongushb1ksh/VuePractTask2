@@ -21,9 +21,9 @@ Vue.component('card-form', {
             </p>
 
             <ul>
-                <li v-for="(item, index) in items" :key="index">
+                <li v-for="(item, itemId) in items" :key="item.text">
                     {{ item.text }}
-                     <button type="button" @click="removeItem(index)">Удалить</button>
+                     <button type="button" @click="removeItem(itemId, index)">Удалить</button>
                 </li>
             </ul>
             <p>
@@ -33,6 +33,7 @@ Vue.component('card-form', {
     `,
     data() {
         return {
+            id: '',
             name: '',
             newItem: '',
             items: [],
@@ -74,6 +75,7 @@ Vue.component('card-form', {
             };
             if(this.errors.length === 0){
                 if(this.items.length >= 3 && this.items.length <= 5){
+                    this.id = Date.now();
                     eventBus.$emit('add-card', { name: this.name, items: this.items });
                 }else{
                     console.log('епта')
@@ -109,7 +111,7 @@ Vue.component('card', {
         <div class="card">
             <h3 class="head">{{ card.name }}</h3>
             <ul>
-                <li v-for="(item, itemId) in card.items" :key="item.text">
+                <li v-for="(item, index) in card.items" :key="item.text + index">
                     <span :class="{ completed: item.completed }">{{ item.text }}</span>
                     <input 
                           type="checkbox" 

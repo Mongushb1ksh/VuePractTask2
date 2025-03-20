@@ -15,7 +15,7 @@
             
             <h2>Первый столбец</h2>
             <card v-for="(card, index) in columns[0].cards"
-                  :key="index"
+                  :key="card.id + index"
                   :card="card"
                   @update="updateCard(0, index)">
             </card>
@@ -23,7 +23,7 @@
         <div class="column">
             <h2>Второй столбец</h2>
             <card v-for="(card, index) in columns[1].cards"
-                  :key="index"
+                  :key="card.id + index"
                   :card="card"
                   @update="updateCard(1, index)">
             </card>
@@ -31,7 +31,7 @@
         <div class="column">
             <h2>Третий стобец</h2>
             <card v-for="(card, index) in columns[2].cards"
-                  :key="index"
+                  :key="card.id + index"
                   :card="card">
             </card>
         </div>
