@@ -17,7 +17,8 @@
             <card v-for="(card, index) in columns[0].cards"
                   :key="card.id + index"
                   :card="card"
-                  @update="updateCard(0, index)">
+                  @update="updateCard(0, index)"
+                  @change-category="changeCategory(index)">
             </card>
         </div>
         <div class="column">

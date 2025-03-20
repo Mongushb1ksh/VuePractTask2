@@ -17,6 +17,11 @@ Vue.component('card-form', {
             <p>
                 <label for="new-item">Новый пункт</label>
                 <input id="new-item" v-model="newItem" type="text" v-bind:disabled="isFirstColumnFull">
+                <select id="category" v-model="category" v-bind:disabled="isFirstColumnFull">
+                    <option value="fuits">Фрукты</option>
+                    <option value="milk-product">Молочные продукты</option>
+                    <option value="vegetables">Овощи</option>
+                </select>
                 <button class="buttonItem" type="button" @click="addItem" v-bind:disabled="isFirstColumnFull">Добавить пункт</button>
             </p>
 
@@ -36,6 +41,7 @@ Vue.component('card-form', {
             id: '',
             name: '',
             newItem: '',
+            category: '',
             items: [],
             errors: [],
         };
@@ -59,7 +65,7 @@ Vue.component('card-form', {
                 this.errors.push("Сначала заполните пустой пункт!");
                 return;
             }
-            this.items.push({ text: this.newItem.trim(), completed: false });
+            this.items.push({ text: this.newItem.trim(), category: this.category, completed: false });
             this.newItem='';
             this.errors=[];
         },
@@ -78,7 +84,7 @@ Vue.component('card-form', {
                     this.id = Date.now();
                     eventBus.$emit('add-card', { name: this.name, items: this.items });
                 }else{
-                    console.log('епта')
+
                     alert('Добавьте от 3 до 5 пунктов!');
                     return;
                 }
@@ -105,13 +111,14 @@ Vue.component('card', {
         card:{
             type: Object,
             required: true,
-        }
+        },
     },
     template:`
         <div class="card">
             <h3 class="head">{{ card.name }}</h3>
             <ul>
                 <li v-for="(item, index) in card.items" :key="item.text + index">
+                <div>{{ item.category }}</div>
                     <span :class="{ completed: item.completed }">{{ item.text }}</span>
                     <input 
                           type="checkbox" 
@@ -127,6 +134,11 @@ Vue.component('card', {
         updateCompletion() {
             this.$emit('update');
         },
+
+        updateCategory(){
+            this.$emit('change-category')
+        },
+
     },
     computed:{
         isInThirdColumn(){
@@ -178,6 +190,11 @@ let app = new Vue({
             this.saveData();
             
         },
+
+        changeCategory(cardIndex, newCategory){
+            this.column[0].card[cardIndex].items.category = newCategory
+        },
+
         updateCard(columnIndex, cardIndex){
             const card = this.columns[columnIndex].cards[cardIndex];
             const completionPercentage = this.getCompletionPercentage(card);
