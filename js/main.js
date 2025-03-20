@@ -3,7 +3,7 @@ let eventBus = new Vue()
 Vue.component('card-form', {
    
     template: `
-        <form v-if="!isSecondColumnFull" class="card-form" @submit.prevent="onSubmit">
+    <form v-if="!isSecondColumnFull" class="card-form" @submit.prevent="onSubmit">
             <p v-if="errors.length">
                 <b>Испавьте ошибки:</b>
                 <ul>
@@ -16,8 +16,8 @@ Vue.component('card-form', {
             </p>
             <p>
                 <label for="new-item">Новый пункт</label>
-                <input id="new-item" v-model="newItem" type="text">
-                <button class="buttonItem" type="button" @click="addItem">Добавить пункт</button>
+                <input id="new-item" v-model="newItem" type="text" v-bind:disabled="isFirstColumnFull">
+                <button class="buttonItem" type="button" @click="addItem" v-bind:disabled="isFirstColumnFull">Добавить пункт</button>
             </p>
 
             <ul>
@@ -42,7 +42,13 @@ Vue.component('card-form', {
     computed: {
         isSecondColumnFull(){
             return this.$parent.isSecondColumnFull;
-        },     
+        },    
+        
+        isFirstColumnFull(){
+            return this.items.length >=5;
+        },
+
+
     },
 
     methods: {
@@ -103,7 +109,7 @@ Vue.component('card', {
         <div class="card">
             <h3 class="head">{{ card.name }}</h3>
             <ul>
-                <li v-for="(item, index) in card.items" :key="index">
+                <li v-for="(item, itemId) in card.items" :key="item.text">
                     <span :class="{ completed: item.completed }">{{ item.text }}</span>
                     <input 
                           type="checkbox" 
@@ -127,9 +133,10 @@ Vue.component('card', {
         isSecondColumnFull(){
             return this.$parent.isSecondColumnFull;
         },
+
         isFirstColumn(){
             return this.$parent.columns[0].cards.includes(this.card);
-        }
+        },
     },
 })
 
@@ -148,10 +155,13 @@ let app = new Vue({
         isSecondColumnFull(){
             const isSecondColumnFull = this.columns[1].cards.length >= 5;
             const cardCompleted = this.columns[0].cards.some(card => {
-                return this.getCompletionPercentage(card) > 20;
+                return this.getCompletionPercentage(card) >= 50;
             })
             return isSecondColumnFull && cardCompleted
         },
+
+
+
 
         
     },
@@ -181,18 +191,31 @@ let app = new Vue({
 
             if (columnIndex === 1){
                 if(completionPercentage === 100){
-                    this.moveCard(columnIndex, cardIndex, 2);
                     card.completedAt = new Date().toLocaleString()
+                    this.moveCard(columnIndex, cardIndex, 2);
                 }
             }
 
             this.saveData();
-
+            this.checkMoveCard();
         },
 
+        checkMoveCard(){
+            const firstColumn = this.columns[0];
+            const secondColumn = this.columns[1];
+            
+            for(let i = 0; i < firstColumn.cards.length; i++){
+                const card = firstColumn.cards[i];
+                const completionPercentage = this.getCompletionPercentage(card);
+
+                if(completionPercentage >= 50 && secondColumn.cards.length < 5){
+                    this.moveCard(0, i, 1);
+                    i--;
+                }
+            }
+        },
         moveCard(fromColumn, cardIndex, toColumn) {
             if(toColumn === 1 && this.columns[toColumn].cards.length >= 5){
-                alert('Второй столбец переполнен! Выполните пункты во втором столбце');
                 return;
             }else{
                 const card = this.columns[fromColumn].cards.splice(cardIndex, 1)[0];
