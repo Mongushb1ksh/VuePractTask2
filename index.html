@@ -11,14 +11,14 @@
 <body>
     <div id="app" class="app">
         <div class="column">
-            <card-form @add-card="addCardToColumn(0)"></card-form>  
+            <card-form></card-form>  
             
             <h2>Первый столбец</h2>
             <card v-for="(card, index) in columns[0].cards"
                   :key="card.id + index"
                   :card="card"
                   @update="updateCard(0, index)"
-                  @change-category="changeCategory(index)">
+                  @change-category="changeCategory(0, index, $event)">
             </card>
         </div>
         <div class="column">

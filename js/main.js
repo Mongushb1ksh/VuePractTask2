@@ -18,9 +18,9 @@ Vue.component('card-form', {
                 <label for="new-item">Новый пункт</label>
                 <input id="new-item" v-model="newItem" type="text" v-bind:disabled="isFirstColumnFull">
                 <select id="category" v-model="category" v-bind:disabled="isFirstColumnFull">
-                    <option value="fuits">Фрукты</option>
+                    <option value="fruits">Фрукты</option>
                     <option value="milk-product">Молочные продукты</option>
-                    <option value="vegetables">Овощи</option>
+                    <option value="ovoshi">Овощи</option>
                 </select>
                 <button class="buttonItem" type="button" @click="addItem" v-bind:disabled="isFirstColumnFull">Добавить пункт</button>
             </p>
@@ -52,7 +52,7 @@ Vue.component('card-form', {
         },    
         
         isFirstColumnFull(){
-            return this.items.length >=5;
+            return this.items.length >= 5;
         },
 
 
@@ -65,8 +65,19 @@ Vue.component('card-form', {
                 this.errors.push("Сначала заполните пустой пункт!");
                 return;
             }
-            this.items.push({ text: this.newItem.trim(), category: this.category, completed: false });
+
+            if(!this.category.trim()){
+                this.errors.push("Сначала выберите категорию продукта!");
+                return;
+            }
+            this.items.push({ 
+                id: Date.now(),
+                text: this.newItem.trim(), 
+                category: this.category, 
+                completed: false 
+            });
             this.newItem='';
+            this.category='';
             this.errors=[];
         },
 
@@ -117,14 +128,22 @@ Vue.component('card', {
         <div class="card">
             <h3 class="head">{{ card.name }}</h3>
             <ul>
-                <li v-for="(item, index) in card.items" :key="item.text + index">
-                <div>{{ item.category }}</div>
+                <li v-for="(item, itemsId) in card.items" :key="item.id">
+                    <select
+                            v-model="item.category"
+                            @change="$emit('update-category', {itemIndex, newCategory: item.category})"
+                            :disabled="item.completed || (isFirstColumn && isSecondColumnFull)"
+                    >
+                        <option value="fruits">Фрукты</option>
+                        <option value="milk-product">Молочные продукты</option>
+                        <option value="ovoshi">Овощи</option>
+                    </select><br>
                     <span :class="{ completed: item.completed }">{{ item.text }}</span>
                     <input 
                           type="checkbox" 
                           v-model="item.completed" 
                           @change="updateCompletion" 
-                          :disabled=" item.completed || (isFirstColumn && isSecondColumnFull)">   
+                          :disabled=" item.completed || (isFirstColumn && isSecondColumnFull)"> 
                 </li>
             </ul>    
             <p v-if="card.completedAt">Завершено: {{ card.completedAt }}</p>
@@ -134,11 +153,6 @@ Vue.component('card', {
         updateCompletion() {
             this.$emit('update');
         },
-
-        updateCategory(){
-            this.$emit('change-category')
-        },
-
     },
     computed:{
         isInThirdColumn(){
@@ -146,6 +160,10 @@ Vue.component('card', {
         },
         isSecondColumnFull(){
             return this.$parent.isSecondColumnFull;
+        },
+
+        isCategory(){
+            return this.
         },
 
         isFirstColumn(){
@@ -191,8 +209,9 @@ let app = new Vue({
             
         },
 
-        changeCategory(cardIndex, newCategory){
-            this.column[0].card[cardIndex].items.category = newCategory
+        changeCategory(cardIndex, {itemIndex, newCategory}){
+            this.columns[0].cards[cardIndex].items[itemIndex].category = newCategory;
+            this.saveData();
         },
 
         updateCard(columnIndex, cardIndex){
