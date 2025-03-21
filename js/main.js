@@ -128,10 +128,14 @@ Vue.component('card', {
         <div class="card">
             <h3 class="head">{{ card.name }}</h3>
             <ul>
-                <li v-for="(item, itemsId) in card.items" :key="item.id">
+                <li v-for="(item, itemIndex) in card.items" :key="item.id">
                     <select
                             v-model="item.category"
-                            @change="$emit('update-category', {itemIndex, newCategory: item.category})"
+                            @change="$emit('update-category', { 
+                                card: card, 
+                                itemIndex: itemIndex, 
+                                newCategory: item.category 
+                            })"
                             :disabled="item.completed || (isFirstColumn && isSecondColumnFull)"
                     >
                         <option value="fruits">Фрукты</option>
@@ -162,10 +166,6 @@ Vue.component('card', {
             return this.$parent.isSecondColumnFull;
         },
 
-        isCategory(){
-            return this.
-        },
-
         isFirstColumn(){
             return this.$parent.columns[0].cards.includes(this.card);
         },
@@ -190,12 +190,7 @@ let app = new Vue({
                 return this.getCompletionPercentage(card) >= 50;
             })
             return isSecondColumnFull && cardCompleted
-        },
-
-
-
-
-        
+        },        
     },
 
     methods: {
@@ -206,12 +201,23 @@ let app = new Vue({
             }
             this.columns[columnIndex].cards.push(card);
             this.saveData();
-            
         },
 
-        changeCategory(cardIndex, {itemIndex, newCategory}){
-            this.columns[0].cards[cardIndex].items[itemIndex].category = newCategory;
-            this.saveData();
+        updateCategory({ card, itemIndex, newCategory}) {
+            const columnIndex = this.columns.findIndex(col => col.cards.includes(card));
+            if (columnIndex !== -1) {
+                const cardIndex = this.columns[columnIndex].cards.indexOf(card);
+                const updatedItem = {
+                    ...this.columns[columnIndex].cards[cardIndex].items[itemIndex],
+                    category: newCategory,
+                };
+                this.$set(
+                    this.columns[columnIndex].cards[cardIndex].items,
+                    itemIndex,
+                    updatedItem
+                );
+                this.saveData();
+            }
         },
 
         updateCard(columnIndex, cardIndex){
